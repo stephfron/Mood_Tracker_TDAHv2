@@ -4,6 +4,7 @@ import { Sun, Moon, Sparkles, Tag, Brain, Zap } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import MoodSelector from '@/components/MoodSelector';
 import SymptomSelector from '@/components/SymptomSelector';
+import MedicationTracker from '@/components/MedicationTracker';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { MoodEntry, DEFAULT_MOOD_ENTRY } from '@/types/mood';
@@ -64,7 +65,7 @@ export default function HomeScreen() {
     });
   };
 
-  const predefinedTags = ['Travail', 'Études', 'Famille', 'Amis', 'Repos', 'Exercice', 'Médicaments', 'Procrastination'];
+  const predefinedTags = ['Travail', 'Études', 'Famille', 'Amis', 'Repos', 'Exercice', 'Procrastination'];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -82,6 +83,14 @@ export default function HomeScreen() {
           onSelectMood={(mood) => setMoodEntry({ ...moodEntry, mood })}
         />
         
+        <MedicationTracker
+          medication={moodEntry.factors.medication}
+          onUpdate={(medication) => setMoodEntry({
+            ...moodEntry,
+            factors: { ...moodEntry.factors, medication }
+          })}
+        />
+
         {!showDetails && (
           <Button
             title="Ajouter plus de détails"

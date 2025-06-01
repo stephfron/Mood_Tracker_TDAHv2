@@ -1,6 +1,15 @@
 export type MoodType = 'verySad' | 'sad' | 'neutral' | 'happy' | 'veryHappy';
 export type SymptomLevel = 'low' | 'medium' | 'high';
 
+export interface MedicationDetails {
+  taken: boolean;
+  time?: string;
+  name?: string;
+  dosage?: string;
+  notes?: string;
+  sideEffects?: string[];
+}
+
 export interface MoodEntry {
   id: string;
   date: string; // ISO string
@@ -13,8 +22,7 @@ export interface MoodEntry {
     motivation: SymptomLevel;
   };
   factors: {
-    medication: 'taken' | 'notTaken' | 'notApplicable';
-    medicationTime?: string;
+    medication: MedicationDetails;
     sleep: {
       hours: number;
       quality?: 'good' | 'average' | 'poor';
@@ -43,7 +51,10 @@ export const DEFAULT_MOOD_ENTRY: MoodEntry = {
     motivation: 'medium',
   },
   factors: {
-    medication: 'notApplicable',
+    medication: {
+      taken: false,
+      sideEffects: [],
+    },
     sleep: {
       hours: 7,
       quality: 'average',
