@@ -1,113 +1,232 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Pressable, useWindowDimensions } from 'react-native';
-import { Sun, Moon, Sparkles, TrendingUp } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import { Sun, Moon, Sparkles, Tag, Brain, Zap } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import MoodSelector from '@/components/MoodSelector';
 import SymptomSelector from '@/components/SymptomSelector';
 import Card from '@/components/Card';
-import CopingStrategies from '@/components/CopingStrategies';
+import Button from '@/components/Button';
 import { MoodEntry, DEFAULT_MOOD_ENTRY } from '@/types/mood';
+import { saveMoodEntry } from '@/utils/storage';
 
 export default function HomeScreen() {
-  const { width } = useWindowDimensions();
   const [moodEntry, setMoodEntry] = useState<MoodEntry>({
     ...DEFAULT_MOOD_ENTRY,
     id: Date.now().toString(),
     date: new Date().toISOString(),
   });
+  const [showDetails, setShowDetails] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [newTag, setNewTag] = useState('');
 
   const timeOfDay = new Date().getHours() < 12 ? 'matin' : new Date().getHours() < 18 ? 'après-midi' : 'soir';
   const greetingIcon = timeOfDay === 'matin' ? Sun : timeOfDay === 'après-midi' ? Sparkles : Moon;
   const GreetingIcon = greetingIcon;
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveMoodEntry(moodEntry);
+      // Reset form
+      setMoodEntry({
+        ...DEFAULT_MOOD_ENTRY,
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+      });
+      setShowDetails(false);
+    } catch (error) {
+      console.error('Error saving mood entry:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !moodEntry.factors.tags.includes(newTag.trim())) {
+      setMoodEntry({
+        ...moodEntry,
+        factors: {
+          ...moodEntry.factors,
+          tags: [...moodEntry.factors.tags, newTag.trim()]
+        }
+      });
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setMoodEntry({
+      ...moodEntry,
+      factors: {
+        ...moodEntry.factors,
+        tags: moodEntry.factors.tags.filter(tag => tag !== tagToRemove)
+      }
+    });
+  };
+
+  const predefinedTags = ['Travail', 'Études', 'Famille', 'Amis', 'Repos', 'Exercice', 'Médicaments', 'Procrastination'];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.greetingContainer}>
           <GreetingIcon size={32} color={Colors.light.tint} style={styles.greetingIcon} />
-          <View>
-            <Text style={styles.greeting}>Bon {timeOfDay},</Text>
-            <Text style={styles.name}>Sarah</Text>
-          </View>
-        </View>
-        
-        <View style={styles.statsCard}>
-          <View style={styles.statItem}>
-            <TrendingUp size={20} color={Colors.light.tint} />
-            <View style={styles.statContent}>
-              <Text style={styles.statValue}>7 jours</Text>
-              <Text style={styles.statLabel}>Suivi continu</Text>
-            </View>
-          </View>
+          <Text style={styles.greeting}>Bon {timeOfDay} !</Text>
         </View>
       </View>
 
-      <Card>
-        <Text style={styles.cardTitle}>Comment vous sentez-vous ?</Text>
+      <Card style={styles.mainCard}>
+        <Text style={styles.mainQuestion}>Comment te sens-tu maintenant ?</Text>
         <MoodSelector
           selectedMood={moodEntry.mood}
           onSelectMood={(mood) => setMoodEntry({ ...moodEntry, mood })}
         />
-      </Card>
-
-      <Card>
-        <Text style={styles.cardTitle}>Symptômes TDAH</Text>
-        <View style={styles.symptomsContainer}>
-          <SymptomSelector
-            title="Concentration"
-            selectedLevel={moodEntry.symptoms.concentration}
-            onSelectLevel={(level) =>
-              setMoodEntry({
-                ...moodEntry,
-                symptoms: { ...moodEntry.symptoms, concentration: level },
-              })
-            }
+        
+        {!showDetails && (
+          <Button
+            title="Ajouter plus de détails"
+            type="outline"
+            onPress={() => setShowDetails(true)}
+            style={styles.detailsButton}
           />
-          <SymptomSelector
-            title="Agitation"
-            selectedLevel={moodEntry.symptoms.agitation}
-            onSelectLevel={(level) =>
-              setMoodEntry({
-                ...moodEntry,
-                symptoms: { ...moodEntry.symptoms, agitation: level },
-              })
-            }
-          />
-        </View>
-      </Card>
+        )}
 
-      <CopingStrategies />
-
-      <View style={styles.featuredSection}>
-        <Text style={styles.sectionTitle}>Ressources recommandées</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.resourcesScroll}>
-          {[
-            {
-              id: '1',
-              title: 'Méditation guidée TDAH',
-              description: 'Une séance de 10 minutes pour améliorer la concentration',
-              image: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg'
-            },
-            {
-              id: '2',
-              title: 'Routine du soir',
-              description: 'Établir une routine apaisante pour mieux dormir',
-              image: 'https://images.pexels.com/photos/924824/pexels-photo-924824.jpeg'
-            }
-          ].map(resource => (
-            <Pressable key={resource.id} style={styles.resourceCard}>
-              <Image
-                source={{ uri: resource.image }}
-                style={styles.resourceImage}
-              />
-              <View style={styles.resourceContent}>
-                <Text style={styles.resourceTitle}>{resource.title}</Text>
-                <Text style={styles.resourceDescription}>{resource.description}</Text>
+        {showDetails && (
+          <View style={styles.detailsContainer}>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Brain size={20} color={Colors.light.tint} />
+                <Text style={styles.sectionTitle}>Symptômes TDAH</Text>
               </View>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
+              <SymptomSelector
+                title="Concentration"
+                selectedLevel={moodEntry.symptoms.concentration}
+                onSelectLevel={(level) =>
+                  setMoodEntry({
+                    ...moodEntry,
+                    symptoms: { ...moodEntry.symptoms, concentration: level },
+                  })
+                }
+              />
+              <SymptomSelector
+                title="Agitation"
+                selectedLevel={moodEntry.symptoms.agitation}
+                onSelectLevel={(level) =>
+                  setMoodEntry({
+                    ...moodEntry,
+                    symptoms: { ...moodEntry.symptoms, agitation: level },
+                  })
+                }
+              />
+              <SymptomSelector
+                title="Impulsivité"
+                selectedLevel={moodEntry.symptoms.impulsivity}
+                onSelectLevel={(level) =>
+                  setMoodEntry({
+                    ...moodEntry,
+                    symptoms: { ...moodEntry.symptoms, impulsivity: level },
+                  })
+                }
+              />
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Zap size={20} color={Colors.light.tint} />
+                <Text style={styles.sectionTitle}>Niveau d'énergie</Text>
+              </View>
+              <View style={styles.energyContainer}>
+                {['low', 'medium', 'high'].map((level) => (
+                  <Pressable
+                    key={level}
+                    style={[
+                      styles.energyOption,
+                      moodEntry.symptoms.motivation === level && styles.selectedEnergyOption
+                    ]}
+                    onPress={() => setMoodEntry({
+                      ...moodEntry,
+                      symptoms: { ...moodEntry.symptoms, motivation: level as any }
+                    })}
+                  >
+                    <Text style={[
+                      styles.energyText,
+                      moodEntry.symptoms.motivation === level && styles.selectedEnergyText
+                    ]}>
+                      {level === 'low' ? 'Faible' : level === 'medium' ? 'Moyen' : 'Élevé'}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Tag size={20} color={Colors.light.tint} />
+                <Text style={styles.sectionTitle}>Contexte</Text>
+              </View>
+              <View style={styles.tagsContainer}>
+                {predefinedTags.map((tag) => (
+                  <Pressable
+                    key={tag}
+                    style={[
+                      styles.tag,
+                      moodEntry.factors.tags.includes(tag) && styles.selectedTag
+                    ]}
+                    onPress={() => {
+                      if (moodEntry.factors.tags.includes(tag)) {
+                        handleRemoveTag(tag);
+                      } else {
+                        handleAddTag();
+                        setMoodEntry({
+                          ...moodEntry,
+                          factors: {
+                            ...moodEntry.factors,
+                            tags: [...moodEntry.factors.tags, tag]
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    <Text style={[
+                      styles.tagText,
+                      moodEntry.factors.tags.includes(tag) && styles.selectedTagText
+                    ]}>
+                      {tag}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.customTagContainer}>
+                <TextInput
+                  style={styles.customTagInput}
+                  value={newTag}
+                  onChangeText={setNewTag}
+                  placeholder="Ajouter un tag personnalisé"
+                  onSubmitEditing={handleAddTag}
+                />
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <TextInput
+                style={styles.notesInput}
+                multiline
+                numberOfLines={4}
+                placeholder="Notes personnelles (optionnel)"
+                value={moodEntry.notes}
+                onChangeText={(text) => setMoodEntry({ ...moodEntry, notes: text })}
+              />
+            </View>
+          </View>
+        )}
+
+        <Button
+          title={showDetails ? "Enregistrer" : "Valider"}
+          onPress={handleSave}
+          loading={isSaving}
+          style={styles.saveButton}
+        />
+      </Card>
     </ScrollView>
   );
 }
@@ -130,93 +249,115 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   greeting: {
-    fontSize: 16,
-    color: Colors.light.textSecondary,
-    fontFamily: 'Inter-Regular',
-  },
-  name: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: Colors.light.text,
-  },
-  statsCard: {
-    backgroundColor: Colors.light.cardBackground,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statContent: {
-    marginLeft: 12,
-  },
-  statValue: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.light.text,
-  },
-  statLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: Colors.light.textSecondary,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.light.text,
-    marginBottom: 16,
-  },
-  symptomsContainer: {
-    gap: 16,
-  },
-  featuredSection: {
-    padding: 16,
-  },
-  sectionTitle: {
     fontSize: 20,
     fontFamily: 'Inter-SemiBold',
     color: Colors.light.text,
+  },
+  mainCard: {
+    margin: 16,
+    marginTop: 0,
+  },
+  mainQuestion: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: Colors.light.text,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  detailsButton: {
+    marginTop: 16,
+  },
+  detailsContainer: {
+    marginTop: 24,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  resourcesScroll: {
-    marginHorizontal: -16,
-    paddingHorizontal: 16,
-  },
-  resourceCard: {
-    width: 280,
-    borderRadius: 16,
-    backgroundColor: Colors.light.cardBackground,
-    marginRight: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  resourceImage: {
-    width: '100%',
-    height: 160,
-  },
-  resourceContent: {
-    padding: 16,
-  },
-  resourceTitle: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontFamily: 'Inter-SemiBold',
     color: Colors.light.text,
-    marginBottom: 8,
+    marginLeft: 8,
   },
-  resourceDescription: {
+  energyContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  energyOption: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: Colors.light.backgroundSecondary,
+    alignItems: 'center',
+  },
+  selectedEnergyOption: {
+    backgroundColor: Colors.light.selected,
+    borderWidth: 2,
+    borderColor: Colors.light.tint,
+  },
+  energyText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: Colors.light.textSecondary,
+  },
+  selectedEnergyText: {
+    fontFamily: 'Inter-Medium',
+    color: Colors.light.text,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  tag: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: Colors.light.backgroundSecondary,
+  },
+  selectedTag: {
+    backgroundColor: Colors.light.selected,
+    borderWidth: 1,
+    borderColor: Colors.light.tint,
+  },
+  tagText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: Colors.light.textSecondary,
+  },
+  selectedTagText: {
+    color: Colors.light.tint,
+    fontFamily: 'Inter-Medium',
+  },
+  customTagContainer: {
+    marginTop: 8,
+  },
+  customTagInput: {
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
+  notesInput: {
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  saveButton: {
+    marginTop: 24,
   },
 });
