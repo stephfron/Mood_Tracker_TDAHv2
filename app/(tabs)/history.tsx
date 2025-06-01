@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { Calendar as CalendarIcon, TrendingUp, Brain, Pill } from 'lucide-react-native';
 import Card from '@/components/Card';
 import Colors from '@/constants/Colors';
 import { getMoodEntries } from '@/utils/storage';
@@ -26,230 +27,295 @@ const moodLabels: Record<MoodType, string> = {
   veryHappy: 'Très content(e)',
 };
 
+type Period = 'week' | 'month' | '3months';
+
 export default function HistoryScreen() {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>('week');
   const [markedDates, setMarkedDates] = useState<any>({});
   const [chartData, setChartData] = useState<any>({
     labels: [],
     datasets: [{ data: [] }],
   });
+  const [moodDistribution, setMoodDistribution] = useState<Record<MoodType, number>>({
+    verySad: 0,
+    sad: 0,
+    neutral: 0,
+    happy: 0,
+    veryHappy: 0,
+  });
+  const [insights, setInsights] = useState<string[]>([]);
 
   useEffect(() => {
     loadEntries();
   }, []);
 
+  useEffect(() => {
+    if (entries.length > 0) {
+      processDataForPeriod(selectedPeriod);
+    }
+  }, [entries, selectedPeriod]);
+
   const loadEntries = async () => {
     const loadedEntries = await getMoodEntries();
     setEntries(loadedEntries);
-    
-    // Process data for calendar view
-    const datesObject: any = {};
-    
-    loadedEntries.forEach((entry) => {
-      const dateStr = entry.date.split('T')[0];
-      const moodColor = Colors.light.moodColors[entry.mood];
-      
-      datesObject[dateStr] = {
-        selected: true,
-        selectedColor: moodColor,
-      };
-    });
-    
-    setMarkedDates(datesObject);
-    
-    // Process data for chart view (last 7 days)
-    processChartData(loadedEntries);
   };
 
-  const processChartData = (entries: MoodEntry[]) => {
-    // Sort entries by date
-    const sortedEntries = [...entries].sort((a, b) => 
+  const processDataForPeriod = (period: Period) => {
+    const now = new Date();
+    const periodStart = new Date();
+    
+    switch (period) {
+      case 'week':
+        periodStart.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        periodStart.setMonth(now.getMonth() - 1);
+        break;
+      case '3months':
+        periodStart.setMonth(now.getMonth() - 3);
+        break;
+    }
+
+    const filteredEntries = entries.filter(entry => 
+      new Date(entry.date) >= periodStart && new Date(entry.date) <= now
+    );
+
+    // Process calendar marks
+    const datesObject: any = {};
+    filteredEntries.forEach((entry) => {
+      const dateStr = entry.date.split('T')[0];
+      datesObject[dateStr] = {
+        selected: true,
+        selectedColor: Colors.light.moodColors[entry.mood],
+      };
+    });
+    setMarkedDates(datesObject);
+
+    // Process chart data
+    const sortedEntries = [...filteredEntries].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-    
-    // Get last 7 days of entries
-    const last7Days = sortedEntries.slice(-7);
-    
-    const labels = last7Days.map(entry => {
+
+    const labels = sortedEntries.map(entry => {
       const date = new Date(entry.date);
       return `${date.getDate()}/${date.getMonth() + 1}`;
     });
-    
-    const data = last7Days.map(entry => moodValues[entry.mood]);
-    
-    setChartData({
-      labels,
-      datasets: [{ data: data.length ? data : [0] }],
-    });
-  };
 
-  const getMoodSummary = () => {
-    if (entries.length === 0) return null;
-    
-    // Count occurrences of each mood
-    const moodCounts: Record<MoodType, number> = {
+    const data = sortedEntries.map(entry => moodValues[entry.mood]);
+
+    setChartData({
+      labels: labels.slice(-7), // Show last 7 points
+      datasets: [{ data: data.slice(-7) }],
+    });
+
+    // Calculate mood distribution
+    const distribution: Record<MoodType, number> = {
       verySad: 0,
       sad: 0,
       neutral: 0,
       happy: 0,
       veryHappy: 0,
     };
-    
-    entries.forEach(entry => {
-      moodCounts[entry.mood]++;
+
+    filteredEntries.forEach(entry => {
+      distribution[entry.mood]++;
     });
-    
-    // Find the most common mood
-    let maxCount = 0;
-    let mostCommonMood: MoodType = 'neutral';
-    
-    (Object.keys(moodCounts) as MoodType[]).forEach(mood => {
-      if (moodCounts[mood] > maxCount) {
-        maxCount = moodCounts[mood];
-        mostCommonMood = mood;
-      }
-    });
-    
-    return {
-      mostCommonMood,
-      totalEntries: entries.length,
-      percentage: Math.round((maxCount / entries.length) * 100),
-    };
+
+    setMoodDistribution(distribution);
+
+    // Generate insights
+    generateInsights(filteredEntries);
   };
 
-  const moodSummary = getMoodSummary();
+  const generateInsights = (periodEntries: MoodEntry[]) => {
+    const newInsights: string[] = [];
+
+    // Streak calculation
+    let currentStreak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < 7; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - i);
+      const hasEntry = periodEntries.some(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate.toDateString() === checkDate.toDateString();
+      });
+      
+      if (hasEntry) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+
+    if (currentStreak > 0) {
+      newInsights.push(`🎯 Série actuelle : ${currentStreak} jour${currentStreak > 1 ? 's' : ''} consécutif${currentStreak > 1 ? 's' : ''}`);
+    }
+
+    // Medication adherence
+    const medicationEntries = periodEntries.filter(entry => entry.factors.medication.taken);
+    const medicationAdherence = (medicationEntries.length / periodEntries.length) * 100;
+    
+    if (medicationAdherence >= 80) {
+      newInsights.push('💊 Excellente adhérence au traitement !');
+    } else if (medicationAdherence >= 50) {
+      newInsights.push('💊 Pensez à prendre votre traitement régulièrement');
+    }
+
+    // Most common mood
+    const moodCounts = Object.entries(moodDistribution)
+      .sort(([, a], [, b]) => b - a);
+    
+    if (moodCounts[0][1] > 0) {
+      newInsights.push(`🎭 Humeur la plus fréquente : ${moodLabels[moodCounts[0][0] as MoodType]}`);
+    }
+
+    setInsights(newInsights);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Historique et Tendances</Text>
-      
-      {entries.length > 0 ? (
-        <>
-          <Card title="Calendrier d'humeur">
-            <Calendar
-              markedDates={markedDates}
-              theme={{
-                calendarBackground: Colors.light.cardBackground,
-                textSectionTitleColor: Colors.light.text,
-                selectedDayBackgroundColor: Colors.light.tint,
-                selectedDayTextColor: '#FFFFFF',
-                todayTextColor: Colors.light.tint,
-                dayTextColor: Colors.light.text,
-                textDisabledColor: Colors.light.textSecondary,
-                dotColor: Colors.light.tint,
-                selectedDotColor: '#FFFFFF',
-                arrowColor: Colors.light.tint,
-                monthTextColor: Colors.light.text,
-              }}
-            />
-          </Card>
-
-          {moodSummary && (
-            <Card title="Résumé d'humeur">
-              <Text style={styles.summaryText}>
-                Votre humeur la plus fréquente est{' '}
-                <Text style={styles.highlightText}>
-                  {moodLabels[moodSummary.mostCommonMood]}
-                </Text>{' '}
-                ({moodSummary.percentage}% des entrées).
+      <View style={styles.header}>
+        <Text style={styles.title}>Historique et Tendances</Text>
+        <View style={styles.periodSelector}>
+          {(['week', 'month', '3months'] as Period[]).map((period) => (
+            <Pressable
+              key={period}
+              style={[
+                styles.periodButton,
+                selectedPeriod === period && styles.periodButtonActive
+              ]}
+              onPress={() => setSelectedPeriod(period)}
+            >
+              <Text style={[
+                styles.periodButtonText,
+                selectedPeriod === period && styles.periodButtonTextActive
+              ]}>
+                {period === 'week' ? '7 jours' : 
+                 period === 'month' ? '1 mois' : 
+                 '3 mois'}
               </Text>
-            </Card>
-          )}
-
-          <Card title="Tendance sur 7 jours">
-            {chartData.labels.length > 0 ? (
-              <LineChart
-                data={chartData}
-                width={screenWidth - 32}
-                height={220}
-                chartConfig={{
-                  backgroundColor: Colors.light.cardBackground,
-                  backgroundGradientFrom: Colors.light.cardBackground,
-                  backgroundGradientTo: Colors.light.cardBackground,
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(30, 41, 59, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: '6',
-                    strokeWidth: '2',
-                    stroke: Colors.light.tint,
-                  },
-                  propsForBackgroundLines: {
-                    strokeDasharray: '',
-                    stroke: Colors.light.border,
-                  },
-                }}
-                bezier
-                style={styles.chart}
-                fromZero
-                yAxisSuffix=""
-                yAxisLabel=""
-                yLabelsOffset={10}
-                segments={5}
-                formatYLabel={(value) => {
-                  const numValue = parseInt(value);
-                  switch (numValue) {
-                    case 1: return 'Très triste';
-                    case 2: return 'Triste';
-                    case 3: return 'Neutre';
-                    case 4: return 'Content(e)';
-                    case 5: return 'Très content(e)';
-                    default: return '';
-                  }
-                }}
-              />
-            ) : (
-              <Text style={styles.noDataText}>
-                Pas assez de données pour afficher le graphique.
-              </Text>
-            )}
-          </Card>
-
-          <Card title="Entrées récentes">
-            {entries.slice(-5).reverse().map((entry) => (
-              <View key={entry.id} style={styles.entryItem}>
-                <View style={styles.entryHeader}>
-                  <View
-                    style={[
-                      styles.moodIndicator,
-                      { backgroundColor: Colors.light.moodColors[entry.mood] },
-                    ]}
-                  />
-                  <Text style={styles.entryDate}>
-                    {new Date(entry.date).toLocaleDateString()}
-                  </Text>
-                </View>
-                <Text style={styles.entryMood}>{moodLabels[entry.mood]}</Text>
-                <View style={styles.symptomsContainer}>
-                  {Object.entries(entry.symptoms).map(([key, value]) => (
-                    <View key={key} style={styles.symptomItem}>
-                      <Text style={styles.symptomLabel}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)}:
-                      </Text>
-                      <Text style={styles.symptomValue}>{value}</Text>
-                    </View>
-                  ))}
-                </View>
-                {entry.notes && (
-                  <Text style={styles.entryNotes} numberOfLines={2}>
-                    {entry.notes}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </Card>
-        </>
-      ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>Pas encore d'entrées</Text>
-          <Text style={styles.emptyStateText}>
-            Commencez à suivre votre humeur pour voir vos tendances apparaître ici.
-          </Text>
+            </Pressable>
+          ))}
         </View>
-      )}
+      </View>
+
+      <Card>
+        <View style={styles.sectionHeader}>
+          <CalendarIcon size={20} color={Colors.light.tint} />
+          <Text style={styles.sectionTitle}>Calendrier d'humeur</Text>
+        </View>
+        <Calendar
+          markedDates={markedDates}
+          theme={{
+            calendarBackground: Colors.light.cardBackground,
+            textSectionTitleColor: Colors.light.text,
+            selectedDayBackgroundColor: Colors.light.tint,
+            selectedDayTextColor: '#FFFFFF',
+            todayTextColor: Colors.light.tint,
+            dayTextColor: Colors.light.text,
+            textDisabledColor: Colors.light.textSecondary,
+            dotColor: Colors.light.tint,
+            selectedDotColor: '#FFFFFF',
+            arrowColor: Colors.light.tint,
+            monthTextColor: Colors.light.text,
+          }}
+        />
+      </Card>
+
+      <Card>
+        <View style={styles.sectionHeader}>
+          <TrendingUp size={20} color={Colors.light.tint} />
+          <Text style={styles.sectionTitle}>Évolution de l'humeur</Text>
+        </View>
+        <LineChart
+          data={chartData}
+          width={screenWidth - 32}
+          height={220}
+          chartConfig={{
+            backgroundColor: Colors.light.cardBackground,
+            backgroundGradientFrom: Colors.light.cardBackground,
+            backgroundGradientTo: Colors.light.cardBackground,
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(30, 41, 59, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+            propsForDots: {
+              r: '6',
+              strokeWidth: '2',
+              stroke: Colors.light.tint,
+            },
+          }}
+          bezier
+          style={styles.chart}
+          fromZero
+          yAxisLabel=""
+          yAxisSuffix=""
+          yLabelsOffset={10}
+          segments={5}
+          formatYLabel={(value) => {
+            const numValue = parseInt(value);
+            switch (numValue) {
+              case 1: return 'Très triste';
+              case 2: return 'Triste';
+              case 3: return 'Neutre';
+              case 4: return 'Content(e)';
+              case 5: return 'Très content(e)';
+              default: return '';
+            }
+          }}
+        />
+      </Card>
+
+      <Card>
+        <View style={styles.sectionHeader}>
+          <Brain size={20} color={Colors.light.tint} />
+          <Text style={styles.sectionTitle}>Aperçus</Text>
+        </View>
+        {insights.map((insight, index) => (
+          <View key={index} style={styles.insightItem}>
+            <Text style={styles.insightText}>{insight}</Text>
+          </View>
+        ))}
+      </Card>
+
+      <Card>
+        <View style={styles.sectionHeader}>
+          <Pill size={20} color={Colors.light.tint} />
+          <Text style={styles.sectionTitle}>Répartition des humeurs</Text>
+        </View>
+        {Object.entries(moodDistribution).map(([mood, count]) => {
+          const percentage = entries.length > 0 ? (count / entries.length) * 100 : 0;
+          return (
+            <View key={mood} style={styles.distributionItem}>
+              <View style={styles.distributionLabel}>
+                <Text style={styles.distributionText}>
+                  {moodLabels[mood as MoodType]}
+                </Text>
+                <Text style={styles.distributionCount}>
+                  {count} ({percentage.toFixed(1)}%)
+                </Text>
+              </View>
+              <View style={styles.distributionBarContainer}>
+                <View
+                  style={[
+                    styles.distributionBar,
+                    {
+                      width: `${percentage}%`,
+                      backgroundColor: Colors.light.moodColors[mood as MoodType],
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          );
+        })}
+      </Card>
     </ScrollView>
   );
 }
@@ -261,111 +327,92 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
-    paddingBottom: 40,
+  },
+  header: {
+    marginBottom: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16,
-    textAlign: 'center',
     fontFamily: 'Inter-Bold',
     color: Colors.light.text,
+    marginBottom: 16,
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    backgroundColor: Colors.light.backgroundSecondary,
+    borderRadius: 12,
+    padding: 4,
+  },
+  periodButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  periodButtonActive: {
+    backgroundColor: Colors.light.tint,
+  },
+  periodButtonText: {
+    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: Colors.light.textSecondary,
+  },
+  periodButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: Colors.light.text,
+    marginLeft: 8,
   },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
   },
-  summaryText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontFamily: 'Inter-Regular',
-    color: Colors.light.text,
-  },
-  highlightText: {
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.light.tint,
-  },
-  entryItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.border,
-  },
-  entryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  insightItem: {
+    backgroundColor: Colors.light.selected,
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 8,
   },
-  moodIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  entryDate: {
+  insightText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
-    fontFamily: 'Inter-Regular',
-  },
-  entryMood: {
-    fontSize: 16,
-    marginBottom: 8,
     fontFamily: 'Inter-Medium',
     color: Colors.light.text,
   },
-  symptomsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 8,
+  distributionItem: {
+    marginBottom: 12,
   },
-  symptomItem: {
+  distributionLabel: {
     flexDirection: 'row',
-    marginRight: 16,
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
-  symptomLabel: {
+  distributionText: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
     fontFamily: 'Inter-Regular',
-    marginRight: 4,
-  },
-  symptomValue: {
-    fontSize: 14,
     color: Colors.light.text,
+  },
+  distributionCount: {
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
-  },
-  entryNotes: {
-    fontSize: 14,
     color: Colors.light.textSecondary,
-    fontFamily: 'Inter-Regular',
-    fontStyle: 'italic',
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 32,
-    backgroundColor: Colors.light.cardBackground,
-    borderRadius: 16,
-    marginTop: 16,
+  distributionBarContainer: {
+    height: 8,
+    backgroundColor: Colors.light.backgroundSecondary,
+    borderRadius: 4,
+    overflow: 'hidden',
   },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.light.text,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: Colors.light.textSecondary,
-    fontFamily: 'Inter-Regular',
-  },
-  noDataText: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    color: Colors.light.textSecondary,
-    fontFamily: 'Inter-Regular',
-    padding: 16,
+  distributionBar: {
+    height: '100%',
+    borderRadius: 4,
   },
 });
