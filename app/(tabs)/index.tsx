@@ -1,196 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import MoodSelector from '@/components/MoodSelector';
-import SymptomSelector from '@/components/SymptomSelector';
-import FactorsInput from '@/components/FactorsInput';
-import JournalInput from '@/components/JournalInput';
-import Button from '@/components/Button';
-import StatsCard from '@/components/StatsCard';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable, useWindowDimensions } from 'react-native';
+import { Play, Clock, Moon } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-import { DEFAULT_MOOD_ENTRY, MoodEntry, UserStats } from '@/types/mood';
-import { saveMoodEntry, getUserStats } from '@/utils/storage';
 
 export default function HomeScreen() {
-  const [moodEntry, setMoodEntry] = useState<MoodEntry>({
-    ...DEFAULT_MOOD_ENTRY,
-    id: Date.now().toString(),
-    date: new Date().toISOString(),
-  });
-  
-  const [userStats, setUserStats] = useState<UserStats>({
-    currentStreak: 0,
-    longestStreak: 0,
-    totalEntries: 0,
-  });
-  
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
-  useEffect(() => {
-    loadUserStats();
-  }, []);
-
-  const loadUserStats = async () => {
-    const stats = await getUserStats();
-    setUserStats(stats);
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    
-    try {
-      await saveMoodEntry(moodEntry);
-      
-      // Reset form with a new ID and current date
-      setMoodEntry({
-        ...DEFAULT_MOOD_ENTRY,
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-      });
-      
-      // Reload stats
-      await loadUserStats();
-      
-      // Show success message
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      console.error('Error saving mood entry:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const { width } = useWindowDimensions();
+  const cardWidth = width - 32; // Full width minus padding
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Comment allez-vous aujourd'hui ?</Text>
-      <Text style={styles.subtitle}>
-        Suivez votre humeur, vos symptômes TDAH et identifiez vos schémas.
-      </Text>
-
-      <StatsCard stats={userStats} />
-
-      <MoodSelector
-        selectedMood={moodEntry.mood}
-        onSelectMood={(mood) => setMoodEntry({ ...moodEntry, mood })}
-      />
-
-      <View style={styles.symptomsContainer}>
-        <Text style={styles.sectionTitle}>Symptômes TDAH</Text>
-        
-        <SymptomSelector
-          title="Concentration"
-          selectedLevel={moodEntry.symptoms.concentration}
-          onSelectLevel={(level) =>
-            setMoodEntry({
-              ...moodEntry,
-              symptoms: { ...moodEntry.symptoms, concentration: level },
-            })
-          }
-        />
-        
-        <SymptomSelector
-          title="Agitation"
-          selectedLevel={moodEntry.symptoms.agitation}
-          onSelectLevel={(level) =>
-            setMoodEntry({
-              ...moodEntry,
-              symptoms: { ...moodEntry.symptoms, agitation: level },
-            })
-          }
-        />
-        
-        <SymptomSelector
-          title="Impulsivité"
-          selectedLevel={moodEntry.symptoms.impulsivity}
-          onSelectLevel={(level) =>
-            setMoodEntry({
-              ...moodEntry,
-              symptoms: { ...moodEntry.symptoms, impulsivity: level },
-            })
-          }
-        />
-        
-        <SymptomSelector
-          title="Motivation"
-          selectedLevel={moodEntry.symptoms.motivation}
-          onSelectLevel={(level) =>
-            setMoodEntry({
-              ...moodEntry,
-              symptoms: { ...moodEntry.symptoms, motivation: level },
-            })
-          }
-        />
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Text style={styles.greeting}>Bonjour,</Text>
+        <Text style={styles.name}>Sarah</Text>
       </View>
 
-      <FactorsInput
-        medication={moodEntry.factors.medication}
-        medicationTime={moodEntry.factors.medicationTime}
-        sleepHours={moodEntry.factors.sleep.hours}
-        sleepQuality={moodEntry.factors.sleep.quality}
-        physicalActivity={moodEntry.factors.physicalActivity}
-        tags={moodEntry.factors.tags}
-        onChangeMedication={(medication) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: { ...moodEntry.factors, medication },
-          })
-        }
-        onChangeMedicationTime={(medicationTime) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: { ...moodEntry.factors, medicationTime },
-          })
-        }
-        onChangeSleepHours={(hours) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: {
-              ...moodEntry.factors,
-              sleep: { ...moodEntry.factors.sleep, hours },
-            },
-          })
-        }
-        onChangeSleepQuality={(quality) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: {
-              ...moodEntry.factors,
-              sleep: { ...moodEntry.factors.sleep, quality },
-            },
-          })
-        }
-        onChangePhysicalActivity={(physicalActivity) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: { ...moodEntry.factors, physicalActivity },
-          })
-        }
-        onChangeTags={(tags) =>
-          setMoodEntry({
-            ...moodEntry,
-            factors: { ...moodEntry.factors, tags },
-          })
-        }
-      />
-
-      <JournalInput
-        value={moodEntry.notes || ''}
-        onChangeText={(notes) => setMoodEntry({ ...moodEntry, notes })}
-      />
-
-      {saveSuccess && (
-        <View style={styles.successMessage}>
-          <Text style={styles.successText}>Entrée enregistrée avec succès !</Text>
+      <View style={styles.featuredCard}>
+        <Image
+          source={{ uri: 'https://images.pexels.com/photos/3560044/pexels-photo-3560044.jpeg' }}
+          style={styles.featuredImage}
+        />
+        <View style={styles.featuredContent}>
+          <Text style={styles.featuredTitle}>Méditation guidée</Text>
+          <Text style={styles.featuredSubtitle}>Commencez votre journée en pleine conscience</Text>
+          <Pressable style={styles.playButton}>
+            <Play size={24} color="#FFFFFF" />
+            <Text style={styles.playButtonText}>Démarrer</Text>
+          </Pressable>
         </View>
-      )}
+      </View>
 
-      <Button
-        title="Enregistrer"
-        onPress={handleSave}
-        loading={isSaving}
-        style={styles.saveButton}
-      />
+      <Text style={styles.sectionTitle}>Recommandés pour vous</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.recommendedSection}
+      >
+        {[
+          {
+            id: '1',
+            title: 'Respiration profonde',
+            duration: '10 min',
+            image: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg'
+          },
+          {
+            id: '2',
+            title: 'Méditation du soir',
+            duration: '15 min',
+            image: 'https://images.pexels.com/photos/924824/pexels-photo-924824.jpeg'
+          },
+          {
+            id: '3',
+            title: 'Relaxation guidée',
+            duration: '20 min',
+            image: 'https://images.pexels.com/photos/1051838/pexels-photo-1051838.jpeg'
+          }
+        ].map(item => (
+          <Pressable key={item.id} style={styles.recommendedCard}>
+            <Image
+              source={{ uri: item.image }}
+              style={styles.recommendedImage}
+            />
+            <View style={styles.recommendedContent}>
+              <Text style={styles.recommendedTitle}>{item.title}</Text>
+              <View style={styles.recommendedMeta}>
+                <Clock size={16} color={Colors.light.textSecondary} />
+                <Text style={styles.recommendedDuration}>{item.duration}</Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      <Text style={styles.sectionTitle}>Exercices du soir</Text>
+      <View style={styles.eveningExercises}>
+        {[
+          {
+            id: '1',
+            title: 'Relaxation avant le coucher',
+            duration: '15 min',
+            image: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg'
+          },
+          {
+            id: '2',
+            title: 'Méditation pour bien dormir',
+            duration: '20 min',
+            image: 'https://images.pexels.com/photos/1028741/pexels-photo-1028741.jpeg'
+          }
+        ].map(item => (
+          <Pressable 
+            key={item.id} 
+            style={[styles.eveningCard, { width: cardWidth }]}
+          >
+            <Image
+              source={{ uri: item.image }}
+              style={styles.eveningImage}
+            />
+            <View style={styles.eveningContent}>
+              <View style={styles.eveningMeta}>
+                <Moon size={20} color={Colors.light.tint} />
+                <Text style={styles.eveningDuration}>{item.duration}</Text>
+              </View>
+              <Text style={styles.eveningTitle}>{item.title}</Text>
+            </View>
+          </Pressable>
+        ))}
+      </View>
     </ScrollView>
   );
 }
@@ -200,48 +114,151 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.background,
   },
-  contentContainer: {
+  header: {
     padding: 16,
-    paddingBottom: 40,
+    paddingTop: 24,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
-    fontFamily: 'Inter-Bold',
-    color: Colors.light.text,
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 16,
-    textAlign: 'center',
+  greeting: {
+    fontSize: 18,
     color: Colors.light.textSecondary,
     fontFamily: 'Inter-Regular',
   },
-  symptomsContainer: {
-    marginVertical: 16,
+  name: {
+    fontSize: 32,
+    fontFamily: 'Inter-Bold',
+    color: Colors.light.text,
+    marginTop: 4,
+  },
+  featuredCard: {
+    margin: 16,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: Colors.light.cardBackground,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  featuredImage: {
+    width: '100%',
+    height: 200,
+  },
+  featuredContent: {
+    padding: 20,
+  },
+  featuredTitle: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: Colors.light.text,
+    marginBottom: 8,
+  },
+  featuredSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: Colors.light.textSecondary,
+    marginBottom: 20,
+  },
+  playButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  playButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    marginLeft: 8,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: 20,
     fontFamily: 'Inter-SemiBold',
     color: Colors.light.text,
-  },
-  saveButton: {
+    marginHorizontal: 16,
     marginTop: 24,
+    marginBottom: 16,
   },
-  successMessage: {
-    backgroundColor: Colors.light.success,
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 16,
+  recommendedSection: {
+    paddingLeft: 16,
+  },
+  recommendedCard: {
+    width: 240,
+    borderRadius: 16,
+    backgroundColor: Colors.light.cardBackground,
+    marginRight: 16,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  recommendedImage: {
+    width: '100%',
+    height: 140,
+  },
+  recommendedContent: {
+    padding: 16,
+  },
+  recommendedTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: Colors.light.text,
+    marginBottom: 8,
+  },
+  recommendedMeta: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  successText: {
-    color: 'white',
-    fontWeight: '500',
+  recommendedDuration: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: Colors.light.textSecondary,
+    marginLeft: 6,
+  },
+  eveningExercises: {
+    padding: 16,
+  },
+  eveningCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  eveningImage: {
+    width: '100%',
+    height: 160,
+  },
+  eveningContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+  },
+  eveningMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  eveningDuration: {
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
+    color: Colors.light.tint,
+    marginLeft: 6,
+  },
+  eveningTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: Colors.light.text,
   },
 });
