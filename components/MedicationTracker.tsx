@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Pressable, ScrollView } from 'react-native';
-import { Pill, Clock, AlertCircle } from 'lucide-react-native';
+import { Pill, Clock, CircleAlert as AlertCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { MedicationDetails } from '@/types/mood';
 
