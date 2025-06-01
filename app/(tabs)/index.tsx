@@ -1,109 +1,112 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Pressable, useWindowDimensions } from 'react-native';
-import { Play, Clock, Moon } from 'lucide-react-native';
+import { Sun, Moon, Sparkles, TrendingUp } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import MoodSelector from '@/components/MoodSelector';
+import SymptomSelector from '@/components/SymptomSelector';
+import Card from '@/components/Card';
+import CopingStrategies from '@/components/CopingStrategies';
+import { MoodEntry, DEFAULT_MOOD_ENTRY } from '@/types/mood';
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
-  const cardWidth = width - 32; // Full width minus padding
+  const [moodEntry, setMoodEntry] = useState<MoodEntry>({
+    ...DEFAULT_MOOD_ENTRY,
+    id: Date.now().toString(),
+    date: new Date().toISOString(),
+  });
+
+  const timeOfDay = new Date().getHours() < 12 ? 'matin' : new Date().getHours() < 18 ? 'après-midi' : 'soir';
+  const greetingIcon = timeOfDay === 'matin' ? Sun : timeOfDay === 'après-midi' ? Sparkles : Moon;
+  const GreetingIcon = greetingIcon;
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>Bonjour,</Text>
-        <Text style={styles.name}>Sarah</Text>
-      </View>
-
-      <View style={styles.featuredCard}>
-        <Image
-          source={{ uri: 'https://images.pexels.com/photos/3560044/pexels-photo-3560044.jpeg' }}
-          style={styles.featuredImage}
-        />
-        <View style={styles.featuredContent}>
-          <Text style={styles.featuredTitle}>Méditation guidée</Text>
-          <Text style={styles.featuredSubtitle}>Commencez votre journée en pleine conscience</Text>
-          <Pressable style={styles.playButton}>
-            <Play size={24} color="#FFFFFF" />
-            <Text style={styles.playButtonText}>Démarrer</Text>
-          </Pressable>
+        <View style={styles.greetingContainer}>
+          <GreetingIcon size={32} color={Colors.light.tint} style={styles.greetingIcon} />
+          <View>
+            <Text style={styles.greeting}>Bon {timeOfDay},</Text>
+            <Text style={styles.name}>Sarah</Text>
+          </View>
+        </View>
+        
+        <View style={styles.statsCard}>
+          <View style={styles.statItem}>
+            <TrendingUp size={20} color={Colors.light.tint} />
+            <View style={styles.statContent}>
+              <Text style={styles.statValue}>7 jours</Text>
+              <Text style={styles.statLabel}>Suivi continu</Text>
+            </View>
+          </View>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Recommandés pour vous</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.recommendedSection}
-      >
-        {[
-          {
-            id: '1',
-            title: 'Respiration profonde',
-            duration: '10 min',
-            image: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg'
-          },
-          {
-            id: '2',
-            title: 'Méditation du soir',
-            duration: '15 min',
-            image: 'https://images.pexels.com/photos/924824/pexels-photo-924824.jpeg'
-          },
-          {
-            id: '3',
-            title: 'Relaxation guidée',
-            duration: '20 min',
-            image: 'https://images.pexels.com/photos/1051838/pexels-photo-1051838.jpeg'
-          }
-        ].map(item => (
-          <Pressable key={item.id} style={styles.recommendedCard}>
-            <Image
-              source={{ uri: item.image }}
-              style={styles.recommendedImage}
-            />
-            <View style={styles.recommendedContent}>
-              <Text style={styles.recommendedTitle}>{item.title}</Text>
-              <View style={styles.recommendedMeta}>
-                <Clock size={16} color={Colors.light.textSecondary} />
-                <Text style={styles.recommendedDuration}>{item.duration}</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-      </ScrollView>
+      <Card>
+        <Text style={styles.cardTitle}>Comment vous sentez-vous ?</Text>
+        <MoodSelector
+          selectedMood={moodEntry.mood}
+          onSelectMood={(mood) => setMoodEntry({ ...moodEntry, mood })}
+        />
+      </Card>
 
-      <Text style={styles.sectionTitle}>Exercices du soir</Text>
-      <View style={styles.eveningExercises}>
-        {[
-          {
-            id: '1',
-            title: 'Relaxation avant le coucher',
-            duration: '15 min',
-            image: 'https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg'
-          },
-          {
-            id: '2',
-            title: 'Méditation pour bien dormir',
-            duration: '20 min',
-            image: 'https://images.pexels.com/photos/1028741/pexels-photo-1028741.jpeg'
-          }
-        ].map(item => (
-          <Pressable 
-            key={item.id} 
-            style={[styles.eveningCard, { width: cardWidth }]}
-          >
-            <Image
-              source={{ uri: item.image }}
-              style={styles.eveningImage}
-            />
-            <View style={styles.eveningContent}>
-              <View style={styles.eveningMeta}>
-                <Moon size={20} color={Colors.light.tint} />
-                <Text style={styles.eveningDuration}>{item.duration}</Text>
+      <Card>
+        <Text style={styles.cardTitle}>Symptômes TDAH</Text>
+        <View style={styles.symptomsContainer}>
+          <SymptomSelector
+            title="Concentration"
+            selectedLevel={moodEntry.symptoms.concentration}
+            onSelectLevel={(level) =>
+              setMoodEntry({
+                ...moodEntry,
+                symptoms: { ...moodEntry.symptoms, concentration: level },
+              })
+            }
+          />
+          <SymptomSelector
+            title="Agitation"
+            selectedLevel={moodEntry.symptoms.agitation}
+            onSelectLevel={(level) =>
+              setMoodEntry({
+                ...moodEntry,
+                symptoms: { ...moodEntry.symptoms, agitation: level },
+              })
+            }
+          />
+        </View>
+      </Card>
+
+      <CopingStrategies />
+
+      <View style={styles.featuredSection}>
+        <Text style={styles.sectionTitle}>Ressources recommandées</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.resourcesScroll}>
+          {[
+            {
+              id: '1',
+              title: 'Méditation guidée TDAH',
+              description: 'Une séance de 10 minutes pour améliorer la concentration',
+              image: 'https://images.pexels.com/photos/3822622/pexels-photo-3822622.jpeg'
+            },
+            {
+              id: '2',
+              title: 'Routine du soir',
+              description: 'Établir une routine apaisante pour mieux dormir',
+              image: 'https://images.pexels.com/photos/924824/pexels-photo-924824.jpeg'
+            }
+          ].map(resource => (
+            <Pressable key={resource.id} style={styles.resourceCard}>
+              <Image
+                source={{ uri: resource.image }}
+                style={styles.resourceImage}
+              />
+              <View style={styles.resourceContent}>
+                <Text style={styles.resourceTitle}>{resource.title}</Text>
+                <Text style={styles.resourceDescription}>{resource.description}</Text>
               </View>
-              <Text style={styles.eveningTitle}>{item.title}</Text>
-            </View>
-          </Pressable>
-        ))}
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
     </ScrollView>
   );
@@ -118,147 +121,102 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 24,
   },
+  greetingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  greetingIcon: {
+    marginRight: 12,
+  },
   greeting: {
-    fontSize: 18,
+    fontSize: 16,
     color: Colors.light.textSecondary,
     fontFamily: 'Inter-Regular',
   },
   name: {
-    fontSize: 32,
-    fontFamily: 'Inter-Bold',
-    color: Colors.light.text,
-    marginTop: 4,
-  },
-  featuredCard: {
-    margin: 16,
-    borderRadius: 24,
-    overflow: 'hidden',
-    backgroundColor: Colors.light.cardBackground,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  featuredImage: {
-    width: '100%',
-    height: 200,
-  },
-  featuredContent: {
-    padding: 20,
-  },
-  featuredTitle: {
     fontSize: 24,
     fontFamily: 'Inter-Bold',
     color: Colors.light.text,
-    marginBottom: 8,
   },
-  featuredSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    color: Colors.light.textSecondary,
-    marginBottom: 20,
+  statsCard: {
+    backgroundColor: Colors.light.cardBackground,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  playButton: {
+  statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.tint,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
   },
-  playButtonText: {
-    color: '#FFFFFF',
+  statContent: {
+    marginLeft: 12,
+  },
+  statValue: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    marginLeft: 8,
+    fontFamily: 'Inter-SemiBold',
+    color: Colors.light.text,
+  },
+  statLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: Colors.light.textSecondary,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: Colors.light.text,
+    marginBottom: 16,
+  },
+  symptomsContainer: {
+    gap: 16,
+  },
+  featuredSection: {
+    padding: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Inter-SemiBold',
     color: Colors.light.text,
-    marginHorizontal: 16,
-    marginTop: 24,
     marginBottom: 16,
   },
-  recommendedSection: {
-    paddingLeft: 16,
+  resourcesScroll: {
+    marginHorizontal: -16,
+    paddingHorizontal: 16,
   },
-  recommendedCard: {
-    width: 240,
+  resourceCard: {
+    width: 280,
     borderRadius: 16,
     backgroundColor: Colors.light.cardBackground,
     marginRight: 16,
     overflow: 'hidden',
-    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  recommendedImage: {
+  resourceImage: {
     width: '100%',
-    height: 140,
+    height: 160,
   },
-  recommendedContent: {
+  resourceContent: {
     padding: 16,
   },
-  recommendedTitle: {
+  resourceTitle: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: Colors.light.text,
     marginBottom: 8,
   },
-  recommendedMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  recommendedDuration: {
+  resourceDescription: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: Colors.light.textSecondary,
-    marginLeft: 6,
-  },
-  eveningExercises: {
-    padding: 16,
-  },
-  eveningCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  eveningImage: {
-    width: '100%',
-    height: 160,
-  },
-  eveningContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-  },
-  eveningMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  eveningDuration: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: Colors.light.tint,
-    marginLeft: 6,
-  },
-  eveningTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.light.text,
   },
 });
