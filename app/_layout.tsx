@@ -10,14 +10,12 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { SplashScreen } from 'expo-router';
-import { useDatabase } from '@/hooks/useDatabase';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
-  const { isReady: isDatabaseReady, error: databaseError } = useDatabase();
   
   const [fontsLoaded, fontError] = useFonts({
     'Inter-Regular': Inter_400Regular,
@@ -26,15 +24,15 @@ export default function RootLayout() {
     'Inter-Bold': Inter_700Bold,
   });
 
-  // Hide splash screen once fonts are loaded and database is ready
+  // Hide splash screen once fonts are loaded
   useEffect(() => {
-    if ((fontsLoaded || fontError) && (isDatabaseReady || databaseError)) {
+    if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError, isDatabaseReady, databaseError]);
+  }, [fontsLoaded, fontError]);
 
   // Return null to keep splash screen visible while loading
-  if (!fontsLoaded && !fontError && !isDatabaseReady && !databaseError) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 

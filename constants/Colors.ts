@@ -6,7 +6,7 @@ export default {
     text: '#1E293B',
     textSecondary: '#64748B',
     background: '#F8FAFC',
-    backgroundSecondary: '#FFFFFF',
+    backgroundSecondary: '#F1F5F9',
     tint: tintColorLight,
     tabIconDefault: '#94A3B8',
     tabIconSelected: tintColorLight,
@@ -16,18 +16,6 @@ export default {
     warning: '#F59E0B',
     success: '#10B981',
     selected: 'rgba(102, 126, 234, 0.1)',
-    moodColors: {
-      verySad: '#F87171',
-      sad: '#FB923C',
-      neutral: '#FCD34D',
-      happy: '#4ADE80',
-      veryHappy: '#60A5FA',
-    },
-    symptomLevels: {
-      low: '#10B981',
-      medium: '#FBBF24',
-      high: '#EF4444',
-    }
   },
   dark: {
     text: '#F1F5F9',
@@ -43,17 +31,5 @@ export default {
     warning: '#FBBF24',
     success: '#34D399',
     selected: 'rgba(118, 75, 162, 0.2)',
-    moodColors: {
-      verySad: '#F87171',
-      sad: '#FB923C',
-      neutral: '#FCD34D',
-      happy: '#4ADE80',
-      veryHappy: '#60A5FA',
-    },
-    symptomLevels: {
-      low: '#34D399',
-      medium: '#FCD34D',
-      high: '#F87171',
-    }
   },
 };

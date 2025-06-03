@@ -6,12 +6,11 @@ interface CardProps {
   title?: string;
   children: ReactNode;
   style?: object;
-  gradient?: boolean;
 }
 
-export default function Card({ title, children, style, gradient }: CardProps) {
+export default function Card({ title, children, style }: CardProps) {
   return (
-    <View style={[styles.card, gradient && styles.gradientCard, style]}>
+    <View style={[styles.card, style]}>
       {title && <Text style={styles.title}>{title}</Text>}
       {children}
     </View>
@@ -29,9 +28,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 40,
     elevation: 4,
-  },
-  gradientCard: {
-    backgroundColor: Colors.light.tint,
   },
   title: {
     fontSize: 18,

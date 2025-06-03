@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
-import { Calendar, History, Settings } from 'lucide-react-native';
+import { Home, Calendar, Settings } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -16,25 +16,25 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Aujourd'hui",
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Home size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: 'Calendar',
           tabBarIcon: ({ color, size }) => (
             <Calendar size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="history"
-        options={{
-          title: 'Historique',
-          tabBarIcon: ({ color, size }) => (
-            <History size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
-          title: 'Paramètres',
+          title: 'Settings',
           tabBarIcon: ({ color, size }) => (
             <Settings size={size} color={color} />
           ),
