@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import { Calendar as CalendarIcon, TrendingUp, Brain, Pill } from 'lucide-react-native';
+import IconButton from '@/components/IconButton';
 import Card from '@/components/Card';
 import Colors from '@/constants/Colors';
 import { getMoodEntries } from '@/utils/storage';
