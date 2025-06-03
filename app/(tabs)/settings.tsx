@@ -1,10 +1,23 @@
-import { View, Text, StyleSheet, ScrollView, Switch, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, Pressable, Share } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, Moon, Palette, Shield, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
+import { Bell, Moon, Palette, Shield, CircleHelp as HelpCircle, LogOut, Download } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Card from '@/components/Card';
+import { exportUserData } from '@/utils/storage';
 
 export default function SettingsScreen() {
+  const handleExportData = async () => {
+    try {
+      const data = await exportUserData();
+      await Share.share({
+        title: 'Mes données MoodFlow',
+        message: data,
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+    }
+  };
+
   return (
     <LinearGradient
       colors={[Colors.dark.backgroundSecondary, Colors.dark.backgroundPrimary]}
@@ -51,17 +64,24 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        <Card style={styles.card}>
+        <Card style={[styles.card, styles.exportCard]}>
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Shield size={20} color={Colors.dark.accentBlue} />
-              <Text style={styles.sectionTitle}>Confidentialité</Text>
+              <Download size={20} color={Colors.dark.accentGreen} />
+              <Text style={[styles.sectionTitle, { color: Colors.dark.accentGreen }]}>
+                Exporter mes données
+              </Text>
             </View>
-            <Pressable style={styles.menuItem}>
-              <Text style={styles.menuItemText}>Gérer les données</Text>
-            </Pressable>
-            <Pressable style={styles.menuItem}>
-              <Text style={styles.menuItemText}>Exporter les données</Text>
+            <Text style={styles.exportDescription}>
+              Exportez vos données pour les partager avec votre thérapeute ou les sauvegarder.
+              Le fichier exporté contient votre historique d'humeur, de symptômes et de médication.
+            </Text>
+            <Pressable 
+              style={styles.exportButton}
+              onPress={handleExportData}
+            >
+              <Download size={20} color={Colors.dark.textPrimary} />
+              <Text style={styles.exportButtonText}>Exporter les données</Text>
             </Pressable>
           </View>
         </Card>
@@ -108,6 +128,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.backgroundTertiary,
     marginBottom: 16,
   },
+  exportCard: {
+    borderWidth: 1,
+    borderColor: Colors.dark.accentGreen,
+    backgroundColor: `${Colors.dark.accentGreen}10`,
+  },
   section: {
     marginBottom: 8,
   },
@@ -120,6 +145,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     color: Colors.dark.textPrimary,
+    marginLeft: 8,
+  },
+  exportDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: Colors.dark.textSecondary,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.dark.accentGreen,
+    padding: 16,
+    borderRadius: 12,
+  },
+  exportButtonText: {
+    color: Colors.dark.textPrimary,
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
     marginLeft: 8,
   },
   setting: {
