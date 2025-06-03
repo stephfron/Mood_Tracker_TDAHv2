@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { MoodType } from '@/types/mood';
 import Colors from '@/constants/Colors';
-import { Frown, Meh as MehIcon, Smile as SmileIcon, Smile as SmileyIcon, Frown as FrownIcon } from 'lucide-react-native';
 
 interface MoodSelectorProps {
   selectedMood: MoodType;
@@ -12,7 +11,7 @@ interface MoodSelectorProps {
 interface MoodOption {
   type: MoodType;
   label: string;
-  icon: React.ReactNode;
+  emoji: string;
 }
 
 export default function MoodSelector({ selectedMood, onSelectMood }: MoodSelectorProps) {
@@ -20,27 +19,27 @@ export default function MoodSelector({ selectedMood, onSelectMood }: MoodSelecto
     {
       type: 'verySad',
       label: 'Très triste',
-      icon: <FrownIcon size={32} color={Colors.light.moodColors.verySad} />,
+      emoji: '😢',
     },
     {
       type: 'sad',
       label: 'Triste',
-      icon: <Frown size={32} color={Colors.light.moodColors.sad} />,
+      emoji: '😕',
     },
     {
       type: 'neutral',
       label: 'Neutre',
-      icon: <MehIcon size={32} color={Colors.light.moodColors.neutral} />,
+      emoji: '😐',
     },
     {
       type: 'happy',
       label: 'Content(e)',
-      icon: <SmileIcon size={32} color={Colors.light.moodColors.happy} />,
+      emoji: '😊',
     },
     {
       type: 'veryHappy',
       label: 'Très content(e)',
-      icon: <SmileyIcon size={32} color={Colors.light.moodColors.veryHappy} />,
+      emoji: '😄',
     },
   ];
 
@@ -57,7 +56,7 @@ export default function MoodSelector({ selectedMood, onSelectMood }: MoodSelecto
             ]}
             onPress={() => onSelectMood(option.type)}
           >
-            <View style={styles.iconContainer}>{option.icon}</View>
+            <Text style={styles.emoji}>{option.emoji}</Text>
             <Text
               style={[
                 styles.moodLabel,
@@ -103,7 +102,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.light.tint,
   },
-  iconContainer: {
+  emoji: {
+    fontSize: 32,
     marginBottom: 4,
   },
   moodLabel: {
