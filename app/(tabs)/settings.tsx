@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, Switch, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Bell, Moon, Palette, Shield, HelpCircle, LogOut } from 'lucide-react-native';
+import { Bell, Moon, Palette, Shield, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import Card from '@/components/Card';
 
