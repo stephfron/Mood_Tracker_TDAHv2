@@ -1,5 +1,5 @@
-const tintColorLight = '#6366F1';
-const tintColorDark = '#818CF8';
+const tintColorLight = '#667eea';
+const tintColorDark = '#764ba2';
 
 export default {
   light: {
@@ -15,18 +15,18 @@ export default {
     error: '#EF4444',
     warning: '#F59E0B',
     success: '#10B981',
-    selected: 'rgba(99, 102, 241, 0.1)',
+    selected: 'rgba(102, 126, 234, 0.1)',
     moodColors: {
-      verySad: '#EF4444', // Red
-      sad: '#F97316', // Orange
-      neutral: '#FBBF24', // Yellow
-      happy: '#34D399', // Green
-      veryHappy: '#38BDF8', // Blue
+      verySad: '#F87171',
+      sad: '#FB923C',
+      neutral: '#FCD34D',
+      happy: '#4ADE80',
+      veryHappy: '#60A5FA',
     },
     symptomLevels: {
-      low: '#10B981', // Success Green
-      medium: '#FBBF24', // Yellow
-      high: '#EF4444', // Red
+      low: '#10B981',
+      medium: '#FBBF24',
+      high: '#EF4444',
     }
   },
   dark: {
@@ -42,18 +42,18 @@ export default {
     error: '#F87171',
     warning: '#FBBF24',
     success: '#34D399',
-    selected: 'rgba(129, 140, 248, 0.2)',
+    selected: 'rgba(118, 75, 162, 0.2)',
     moodColors: {
-      verySad: '#F87171', // Red
-      sad: '#FB923C', // Orange
-      neutral: '#FCD34D', // Yellow
-      happy: '#4ADE80', // Green
-      veryHappy: '#60A5FA', // Blue
+      verySad: '#F87171',
+      sad: '#FB923C',
+      neutral: '#FCD34D',
+      happy: '#4ADE80',
+      veryHappy: '#60A5FA',
     },
     symptomLevels: {
-      low: '#34D399', // Success Green
-      medium: '#FCD34D', // Yellow
-      high: '#F87171', // Red
+      low: '#34D399',
+      medium: '#FCD34D',
+      high: '#F87171',
     }
   },
 };

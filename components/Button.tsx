@@ -10,6 +10,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   style?: object;
+  gradient?: boolean;
 }
 
 export default function Button({
@@ -20,6 +21,7 @@ export default function Button({
   disabled = false,
   loading = false,
   style,
+  gradient = false,
 }: ButtonProps) {
   return (
     <TouchableOpacity
@@ -27,6 +29,7 @@ export default function Button({
         styles.button,
         styles[type],
         styles[size],
+        gradient && styles.gradient,
         disabled && styles.disabled,
         style,
       ]}
@@ -35,11 +38,16 @@ export default function Button({
     >
       {loading ? (
         <ActivityIndicator 
-          color={type === 'primary' ? '#FFFFFF' : Colors.light.tint} 
+          color={type === 'primary' || gradient ? '#FFFFFF' : Colors.light.tint} 
           size="small" 
         />
       ) : (
-        <Text style={[styles.text, styles[`${type}Text`], styles[`${size}Text`]]}>
+        <Text style={[
+          styles.text,
+          styles[`${type}Text`],
+          styles[`${size}Text`],
+          gradient && styles.gradientText
+        ]}>
           {title}
         </Text>
       )}
@@ -49,7 +57,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -57,22 +65,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.tint,
   },
   secondary: {
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    backgroundColor: Colors.light.selected,
   },
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: Colors.light.tint,
   },
   text: {
     backgroundColor: 'transparent',
+  },
+  gradient: {
+    backgroundColor: Colors.light.tint,
   },
   small: {
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
   medium: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 24,
   },
   large: {
@@ -88,19 +99,23 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: '#FFFFFF',
-    fontWeight: '500',
+    fontFamily: 'Inter-SemiBold',
   },
   secondaryText: {
     color: Colors.light.tint,
-    fontWeight: '500',
+    fontFamily: 'Inter-SemiBold',
   },
   outlineText: {
     color: Colors.light.tint,
-    fontWeight: '500',
+    fontFamily: 'Inter-SemiBold',
   },
   textText: {
     color: Colors.light.tint,
-    fontWeight: '500',
+    fontFamily: 'Inter-Medium',
+  },
+  gradientText: {
+    color: '#FFFFFF',
+    fontFamily: 'Inter-SemiBold',
   },
   smallText: {
     fontSize: 14,

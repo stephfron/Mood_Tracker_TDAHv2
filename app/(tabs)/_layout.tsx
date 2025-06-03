@@ -1,22 +1,22 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { Calendar, History, Settings } from 'lucide-react-native';
+import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#6366F1',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: Colors.light.tint,
+        tabBarInactiveTintColor: Colors.light.tabIconDefault,
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabLabel,
-        headerStyle: styles.header,
-        headerTitleStyle: styles.headerTitle,
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Aujourd\'hui',
+          title: "Aujourd'hui",
           tabBarIcon: ({ color, size }) => (
             <Calendar size={size} color={color} />
           ),
@@ -46,27 +46,18 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.cardBackground,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    height: 60,
+    borderTopColor: Colors.light.border,
+    height: 64,
+    paddingBottom: 8,
+    paddingTop: 8,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   tabLabel: {
     fontSize: 12,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  header: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  headerTitle: {
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#1E293B',
+    fontFamily: 'Inter-Medium',
+    marginTop: 4,
   },
 });
