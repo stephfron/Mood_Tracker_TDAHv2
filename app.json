@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "moodtracker-clean",
-    "slug": "moodtracker-clean",
+    "name": "moodflow-app",
+    "slug": "moodflow-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "moodtracker",
+    "scheme": "moodflow",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
