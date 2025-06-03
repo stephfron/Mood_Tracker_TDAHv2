@@ -11,14 +11,13 @@ export default function CalendarScreen() {
       style={styles.container}
     >
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Calendrier</Text>
-        </View>
+        <Text style={styles.title}>Calendrier</Text>
 
         <Card>
           <Calendar
             theme={{
-              calendarBackground: 'transparent',
+              backgroundColor: Colors.dark.backgroundPrimary,
+              calendarBackground: Colors.dark.backgroundTertiary,
               textSectionTitleColor: Colors.dark.textPrimary,
               selectedDayBackgroundColor: Colors.dark.accentBlue,
               selectedDayTextColor: Colors.dark.textPrimary,
@@ -48,12 +47,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  header: {
-    marginBottom: 20,
-  },
   title: {
     fontSize: 26,
     fontFamily: 'Inter-Bold',
     color: Colors.dark.textPrimary,
+    marginBottom: 20,
   },
 });

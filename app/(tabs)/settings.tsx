@@ -11,11 +11,9 @@ export default function SettingsScreen() {
       style={styles.container}
     >
       <ScrollView style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Réglages</Text>
-        </View>
+        <Text style={styles.title}>Réglages</Text>
 
-        <Card>
+        <Card style={styles.card}>
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Bell size={20} color={Colors.dark.accentBlue} />
@@ -34,7 +32,7 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        <Card>
+        <Card style={styles.card}>
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Palette size={20} color={Colors.dark.accentBlue} />
@@ -53,7 +51,7 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        <Card>
+        <Card style={styles.card}>
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Shield size={20} color={Colors.dark.accentBlue} />
@@ -68,7 +66,7 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        <Card>
+        <Card style={styles.card}>
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <HelpCircle size={20} color={Colors.dark.accentBlue} />
@@ -100,13 +98,15 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  header: {
-    marginBottom: 20,
-  },
   title: {
     fontSize: 26,
     fontFamily: 'Inter-Bold',
     color: Colors.dark.textPrimary,
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: Colors.dark.backgroundTertiary,
+    marginBottom: 16,
   },
   section: {
     marginBottom: 8,
