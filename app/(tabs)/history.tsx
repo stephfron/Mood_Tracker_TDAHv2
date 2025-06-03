@@ -176,6 +176,60 @@ export default function HistoryScreen() {
     setInsights(newInsights);
   };
 
+  const renderChart = () => {
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.webChartPlaceholder}>
+          <Text style={styles.webChartText}>
+            Le graphique d'évolution n'est pas disponible sur la version web.
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <LineChart
+        data={chartData}
+        width={screenWidth - 32}
+        height={220}
+        chartConfig={{
+          backgroundColor: Colors.light.cardBackground,
+          backgroundGradientFrom: Colors.light.cardBackground,
+          backgroundGradientTo: Colors.light.cardBackground,
+          decimalPlaces: 0,
+          color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(30, 41, 59, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+          propsForDots: {
+            r: '6',
+            strokeWidth: '2',
+            stroke: Colors.light.tint,
+          },
+        }}
+        bezier
+        style={styles.chart}
+        fromZero
+        yAxisLabel=""
+        yAxisSuffix=""
+        yLabelsOffset={10}
+        segments={5}
+        formatYLabel={(value) => {
+          const numValue = parseInt(value);
+          switch (numValue) {
+            case 1: return 'Très triste';
+            case 2: return 'Triste';
+            case 3: return 'Neutre';
+            case 4: return 'Content(e)';
+            case 5: return 'Très content(e)';
+            default: return '';
+          }
+        }}
+      />
+    );
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
@@ -231,46 +285,7 @@ export default function HistoryScreen() {
           <TrendingUp size={20} color={Colors.light.tint} />
           <Text style={styles.sectionTitle}>Évolution de l'humeur</Text>
         </View>
-        <LineChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={{
-            backgroundColor: Colors.light.cardBackground,
-            backgroundGradientFrom: Colors.light.cardBackground,
-            backgroundGradientTo: Colors.light.cardBackground,
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(30, 41, 59, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: Colors.light.tint,
-            },
-          }}
-          bezier
-          style={styles.chart}
-          fromZero
-          yAxisLabel=""
-          yAxisSuffix=""
-          yLabelsOffset={10}
-          segments={5}
-          {...(Platform.OS !== 'web' ? { onDataPointClick: () => {} } : {})}
-          formatYLabel={(value) => {
-            const numValue = parseInt(value);
-            switch (numValue) {
-              case 1: return 'Très triste';
-              case 2: return 'Triste';
-              case 3: return 'Neutre';
-              case 4: return 'Content(e)';
-              case 5: return 'Très content(e)';
-              default: return '';
-            }
-          }}
-        />
+        {renderChart()}
       </Card>
 
       <Card>
@@ -376,6 +391,20 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: 8,
     borderRadius: 16,
+  },
+  webChartPlaceholder: {
+    height: 220,
+    backgroundColor: Colors.light.backgroundSecondary,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  webChartText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
   },
   insightItem: {
     backgroundColor: Colors.light.selected,
