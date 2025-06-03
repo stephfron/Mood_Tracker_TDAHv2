@@ -1,6 +1,36 @@
 const tintColorLight = '#667eea';
 const tintColorDark = '#764ba2';
 
+const darkPaletteBase = {
+  backgroundPrimary: '#0f172a',
+  backgroundSecondary: '#1e293b',
+  backgroundTertiary: 'rgba(30, 41, 59, 0.8)',
+  textPrimary: '#f8fafc',
+  textSecondary: '#94a3b8',
+  textEmphasis: '#e2e8f0',
+  accentBlue: '#3b82f6',
+  accentGreen: '#22c55e',
+  accentPurple: '#8b5cf6',
+  accentRed: '#ef4444',
+  accentOrange: '#f97316',
+  borderPrimary: 'rgba(51, 65, 85, 0.5)',
+  borderAccentBlue: 'rgba(59, 130, 246, 0.2)',
+  borderAccentGreen: 'rgba(34, 197, 94, 0.3)',
+  selectedBackgroundBlue: 'rgba(59, 130, 246, 0.25)',
+  selectedBackgroundPurple: 'rgba(139, 92, 246, 0.25)',
+  selectedBackgroundGreen: 'rgba(34, 197, 94, 0.25)',
+  tabIconSelected: '#3b82f6',
+  tabIconDefault: '#64748b',
+  moodPositive: '#22c55e',
+  moodNegative: '#ef4444',
+  moodNeutral: '#64748b',
+  cognitiveFocused: '#3b82f6',
+  cognitiveScattered: '#8b5cf6',
+  cognitiveFoggy: '#64748b',
+  cognitiveHyperactive: '#f97316',
+  cognitiveTired: '#4b5563',
+};
+
 export default {
   light: {
     text: '#1E293B',
@@ -17,48 +47,33 @@ export default {
     success: '#10B981',
     selected: 'rgba(102, 126, 234, 0.1)',
     moodColors: {
-      verySad: '#EF4444',  // Red for very sad
-      sad: '#F59E0B',      // Orange for sad
-      neutral: '#94A3B8',  // Gray for neutral
-      happy: '#10B981',    // Green for happy
-      veryHappy: '#667eea' // Blue/Purple for very happy
+      verySad: '#EF4444',
+      sad: '#F59E0B',
+      neutral: '#94A3B8',
+      happy: '#10B981',
+      veryHappy: '#667eea'
+    },
+    symptomLevels: {
+      low: '#10B981',
+      medium: '#F59E0B',
+      high: '#EF4444'
     }
   },
   dark: {
-    text: '#F8FAFC',
-    textPrimary: '#f8fafc',
-    textSecondary: '#94a3b8',
-    textEmphasis: '#e2e8f0',
-    background: '#0f172a',
-    backgroundPrimary: '#0f172a',
-    backgroundSecondary: '#1e293b',
-    backgroundTertiary: 'rgba(30, 41, 59, 0.8)',
-    tint: tintColorDark,
-    tabIconDefault: '#64748B',
-    tabIconSelected: tintColorDark,
-    cardBackground: '#1E293B',
-    border: '#334155',
-    borderPrimary: 'rgba(51, 65, 85, 0.5)',
-    borderAccentBlue: 'rgba(59, 130, 246, 0.2)',
-    borderAccentGreen: 'rgba(34, 197, 94, 0.3)',
-    error: '#F87171',
-    warning: '#FBBF24',
-    success: '#34D399',
-    selected: 'rgba(118, 75, 162, 0.2)',
-    accentBlue: '#3b82f6',
-    accentPurple: '#8b5cf6',
-    accentGreen: '#22c55e',
-    accentRed: '#ef4444',
-    accentYellow: '#f59e0b',
-    selectedBackgroundBlue: 'rgba(59, 130, 246, 0.1)',
-    selectedBackgroundPurple: 'rgba(139, 92, 246, 0.1)',
-    selectedBackgroundGreen: 'rgba(34, 197, 94, 0.2)',
+    ...darkPaletteBase,
+    tint: darkPaletteBase.accentBlue,
+    cardBackground: darkPaletteBase.backgroundSecondary,
     moodColors: {
-      verySad: '#F87171',  // Red for very sad
-      sad: '#FBBF24',      // Orange for sad
-      neutral: '#94A3B8',  // Gray for neutral
-      happy: '#34D399',    // Green for happy
-      veryHappy: '#8B5CF6' // Purple for very happy
+      positive: darkPaletteBase.moodPositive,
+      negative: darkPaletteBase.moodNegative,
+      neutral: darkPaletteBase.moodNeutral,
+    },
+    cognitiveColors: {
+      focused: darkPaletteBase.cognitiveFocused,
+      scattered: darkPaletteBase.cognitiveScattered,
+      foggy: darkPaletteBase.cognitiveFoggy,
+      hyperactive: darkPaletteBase.cognitiveHyperactive,
+      tired: darkPaletteBase.cognitiveTired,
     }
   },
 };
