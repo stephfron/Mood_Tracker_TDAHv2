@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable, Platform } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
@@ -258,7 +258,7 @@ export default function HistoryScreen() {
           yAxisSuffix=""
           yLabelsOffset={10}
           segments={5}
-          onDataPointClick={() => {}}
+          {...(Platform.OS !== 'web' ? { onDataPointClick: () => {} } : {})}
           formatYLabel={(value) => {
             const numValue = parseInt(value);
             switch (numValue) {
