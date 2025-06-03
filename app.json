@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "moodflow-app",
+    "name": "MoodFlow",
     "slug": "moodflow-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,12 @@
       "supportsTablet": true
     },
     "android": {
-      "backgroundColor": "#ffffff"
+      "package": "com.moodflow.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
