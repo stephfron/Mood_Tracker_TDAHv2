@@ -16,6 +16,13 @@ export default {
     warning: '#F59E0B',
     success: '#10B981',
     selected: 'rgba(102, 126, 234, 0.1)',
+    moodColors: {
+      verySad: '#EF4444',  // Red for very sad
+      sad: '#F59E0B',      // Orange for sad
+      neutral: '#94A3B8',  // Gray for neutral
+      happy: '#10B981',    // Green for happy
+      veryHappy: '#667eea' // Blue/Purple for very happy
+    }
   },
   dark: {
     text: '#F8FAFC',
@@ -46,5 +53,12 @@ export default {
     selectedBackgroundBlue: 'rgba(59, 130, 246, 0.1)',
     selectedBackgroundPurple: 'rgba(139, 92, 246, 0.1)',
     selectedBackgroundGreen: 'rgba(34, 197, 94, 0.2)',
+    moodColors: {
+      verySad: '#F87171',  // Red for very sad
+      sad: '#FBBF24',      // Orange for sad
+      neutral: '#94A3B8',  // Gray for neutral
+      happy: '#34D399',    // Green for happy
+      veryHappy: '#8B5CF6' // Purple for very happy
+    }
   },
 };

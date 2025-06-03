@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Pressable, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { 
-  Flame, Pill, Save, Smile, Zap, Brain,
-  Frown, Meh, AlertCircle, Target, Waves, Cloud, BatteryCharging, Lightbulb
-} from 'lucide-react-native';
+import { Flame, Pill, Save, Smile, Zap, Brain, Frown, Meh, CircleAlert as AlertCircle, Target, Waves, Cloud, BatteryCharging, Lightbulb } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 type Mood = 'positive' | 'negative' | 'neutral' | 'anxious';
