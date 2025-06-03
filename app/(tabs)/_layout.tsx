@@ -30,9 +30,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="stats"
+        name="history"
         options={{
-          title: 'Rapports',
+          title: 'Historique',
           tabBarIcon: ({ color, size }) => <BarChart3 size={size} color={color} />,
         }}
       />
@@ -46,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Paramètres',
+          title: 'Réglages',
           tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />
