@@ -1,75 +1,35 @@
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MoodEntry, UserStats } from '@/types/mood';
-
-// Create a fallback storage for web
-const webStorage = new Map<string, string>();
-
-async function setItem(key: string, value: string) {
-  if (Platform.OS === 'web') {
-    try {
-      webStorage.set(key, value);
-      localStorage.setItem(key, value);
-    } catch (e) {
-      console.error('Error storing data on web:', e);
-    }
-    return;
-  }
-
-  try {
-    await SecureStore.setItemAsync(key, value);
-  } catch (e) {
-    console.error('Error storing data securely:', e);
-  }
-}
-
-async function getItem(key: string): Promise<string | null> {
-  if (Platform.OS === 'web') {
-    try {
-      const valueFromMap = webStorage.get(key);
-      if (valueFromMap) return valueFromMap;
-      
-      const valueFromStorage = localStorage.getItem(key);
-      if (valueFromStorage) {
-        webStorage.set(key, valueFromStorage);
-        return valueFromStorage;
-      }
-    } catch (e) {
-      console.error('Error retrieving data on web:', e);
-    }
-    return null;
-  }
-
-  try {
-    return await SecureStore.getItemAsync(key);
-  } catch (e) {
-    console.error('Error retrieving data securely:', e);
-    return null;
-  }
-}
-
-async function removeItem(key: string) {
-  if (Platform.OS === 'web') {
-    try {
-      webStorage.delete(key);
-      localStorage.removeItem(key);
-    } catch (e) {
-      console.error('Error removing data on web:', e);
-    }
-    return;
-  }
-
-  try {
-    await SecureStore.deleteItemAsync(key);
-  } catch (e) {
-    console.error('Error removing data securely:', e);
-  }
-}
 
 // Keys
 const MOOD_ENTRIES_KEY = 'moodtracker_entries';
 const USER_STATS_KEY = 'moodtracker_stats';
 const REMINDER_SETTINGS_KEY = 'moodtracker_reminders';
+
+async function setItem(key: string, value: string) {
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (e) {
+    console.error('Error storing data:', e);
+  }
+}
+
+async function getItem(key: string): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(key);
+  } catch (e) {
+    console.error('Error retrieving data:', e);
+    return null;
+  }
+}
+
+async function removeItem(key: string) {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (e) {
+    console.error('Error removing data:', e);
+  }
+}
 
 // Mood entries functions
 export async function saveMoodEntry(entry: MoodEntry): Promise<boolean> {
