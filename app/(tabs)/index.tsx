@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, Pressable, StyleSheet, Platform, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Flame, Pill, Save, Smile, Zap, Brain, Frown, Meh, Target, Waves, Cloud, BatteryCharging, MinusCircle, Check, X } from 'lucide-react-native';
+import { Flame, Pill, Save, Smile, Zap, Brain, Frown, Meh, Target, Waves, Cloud, BatteryCharging, CircleMinus as MinusCircle, Check, X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 type EmotionalStateKey = 'positif' | 'negatif' | 'neutre';
