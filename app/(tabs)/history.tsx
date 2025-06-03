@@ -258,6 +258,7 @@ export default function HistoryScreen() {
           yAxisSuffix=""
           yLabelsOffset={10}
           segments={5}
+          onDataPointClick={() => {}}
           formatYLabel={(value) => {
             const numValue = parseInt(value);
             switch (numValue) {
