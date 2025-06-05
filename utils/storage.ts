@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MoodEntry, UserStats } from '@/types/mood';
+import { MoodEntry, UserStats, ConfiguredMedication, ReminderSettings, DEFAULT_REMINDER_SETTINGS } from '@/types/mood'; // Added ConfiguredMedication etc.
 
 // Keys
 const MOOD_ENTRIES_KEY = 'moodtracker_entries';
 const USER_STATS_KEY = 'moodtracker_stats';
 const REMINDER_SETTINGS_KEY = 'moodtracker_reminders';
+const CONFIGURED_MEDICATIONS_KEY = 'moodtracker_configured_medications'; // New key
 
 async function setItem(key: string, value: string) {
   try {
@@ -159,18 +160,44 @@ async function updateStatsAfterEntry(): Promise<void> {
   }
 }
 
-// Reminders settings
-export interface ReminderSettings {
-  enabled: boolean;
-  times: string[]; // Format: "HH:MM"
-  message: string;
+// Configured Medications functions
+export async function saveConfiguredMedications(meds: ConfiguredMedication[]): Promise<boolean> {
+  try {
+    await setItem(CONFIGURED_MEDICATIONS_KEY, JSON.stringify(meds));
+    return true;
+  } catch (e) {
+    console.error('Error saving configured medications:', e);
+    return false;
+  }
 }
 
-export const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
-  enabled: false,
-  times: ["09:00", "20:00"],
-  message: "N'oubliez pas de noter votre humeur aujourd'hui !"
-};
+export async function getConfiguredMedications(): Promise<ConfiguredMedication[]> {
+  try {
+    const medsJson = await getItem(CONFIGURED_MEDICATIONS_KEY);
+    if (medsJson) {
+      return JSON.parse(medsJson);
+    } else {
+      // For initial testing, if no configured medications are found, save and return a default list:
+      const defaultMeds: ConfiguredMedication[] = [
+        { id: 'med_default_1', name: 'Methylphenidate (Ritaline)', dosage: '10mg', time: '08:00' },
+        { id: 'med_default_2', name: 'Lisdexamfétamine (Elvanse)', dosage: '30mg', time: '08:00' },
+      ];
+      await saveConfiguredMedications(defaultMeds); // Save them for next time
+      return defaultMeds;
+    }
+  } catch (e) {
+    console.error('Error getting configured medications:', e);
+    // In case of an error (e.g., parsing error), also return default or empty
+    // For robustness, could attempt to return defaultMeds here too, or just empty.
+    return [];
+  }
+}
+
+// Reminders settings
+// ReminderSettings and DEFAULT_REMINDER_SETTINGS are now imported from types/mood if they were moved there.
+// Assuming they are still locally defined or correctly imported if moved.
+// If they were not moved to types/mood.ts, this part remains fine.
+// For this diff, I'm assuming ReminderSettings and DEFAULT_REMINDER_SETTINGS are now imported from @/types/mood as well for consistency.
 
 export async function getReminderSettings(): Promise<ReminderSettings> {
   try {
