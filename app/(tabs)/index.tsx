@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, View, Text, TextInput, Pressable, StyleSheet, Platform, Alert } from 'react-native';
+import { ScrollView, View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flame, Pill, Save, Smile, Zap, Brain, Frown, Meh, Target, Waves, Cloud, BatteryCharging, CircleMinus as MinusCircle, Check, X } from 'lucide-react-native';
 import {
@@ -75,6 +76,7 @@ const cognitiveStateOptions: CognitiveStateOption[] = [
 // const initialMedicationEntries: MedicationEntry[] = [...] // This is removed
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const [currentDate, setCurrentDate] = useState('');
   const [streak, setStreak] = useState(7);
   const [selectedEmotionalState, setSelectedEmotionalState] = useState<EmotionalStateKey>('neutre');
@@ -445,7 +447,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 20,
-    paddingTop: Platform.OS === 'android' ? 20 : 0,
+    paddingTop: insets.top,
   },
   greetingContainer: {
     marginBottom: 4,
