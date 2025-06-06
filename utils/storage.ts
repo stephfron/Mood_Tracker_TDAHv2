@@ -113,7 +113,10 @@ async function updateStatsAfterEntry(): Promise<void> {
     // Calculate streak
     const dateStrings = entries.map(entry => {
       const date = new Date(entry.date);
-      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() is 0-indexed
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
     });
     
     // Get unique dates (in case of multiple entries per day)
@@ -122,7 +125,10 @@ async function updateStatsAfterEntry(): Promise<void> {
     // Calculate current streak
     let currentStreak = 0;
     const today = new Date();
-    const todayString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const todayYear = today.getFullYear();
+    const todayMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+    const todayDay = today.getDate().toString().padStart(2, '0');
+    const todayString = `${todayYear}-${todayMonth}-${todayDay}`;
     
     // Check if there's an entry for today
     if (uniqueDates.includes(todayString)) {
@@ -136,7 +142,10 @@ async function updateStatsAfterEntry(): Promise<void> {
       let keepChecking = true;
       
       while (keepChecking) {
-        const checkDateString = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+        const checkYear = checkDate.getFullYear();
+        const checkMonth = (checkDate.getMonth() + 1).toString().padStart(2, '0');
+        const checkDay = checkDate.getDate().toString().padStart(2, '0');
+        const checkDateString = `${checkYear}-${checkMonth}-${checkDay}`;
         
         if (uniqueDates.includes(checkDateString)) {
           currentStreak++;

@@ -17,6 +17,8 @@ import {
   ConfiguredMedication // This is the type for medication configuration
 } from '../../types/mood';
 import Colors from '@/constants/Colors';
+import IntensitySelector from '../../components/IntensitySelector';
+import { ColorWithOpacity } from '../../utils/colors';
 
 type EmotionalStateKey = 'positif' | 'negatif' | 'neutre';
 type CognitiveStateKey = 'concentre' | 'disperse' | 'brumeux' | 'hyperactif' | 'fatigue';
@@ -46,18 +48,6 @@ interface CognitiveStateOption {
 //   time: string;
 //   status: MedicationStatus;
 // }
-
-const ColorWithOpacity = (color: string, opacity: number): string => {
-  if (color.startsWith('#') && color.length === 7) {
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  } else if (color.startsWith('rgba')) {
-    return color.replace(/[\d\.]+\)$/g, `${opacity})`);
-  }
-  return color;
-};
 
 const emotionalStateOptions: EmotionalStateOption[] = [
   { key: 'positif', label: 'Positif/Optimiste', icon: Smile, color: Colors.dark.moodColors.positive },
@@ -180,15 +170,30 @@ export default function HomeScreen() {
 
     // Map UI selectedCognitiveStates to MoodEntry['symptoms']
     const symptomsData: MoodEntry['symptoms'] = {
-      concentration: 'medium', // Default
-      agitation: 'medium',     // Default
-      impulsivity: 'medium',   // Default
-      motivation: 'medium',    // Default
+      concentration: 'medium',
+      agitation: 'medium',
+      impulsivity: 'medium',
+      motivation: 'medium',
+      energyLevel: 'medium', // Default
+      mentalClarity: 'medium', // Default
     };
+
     if (selectedCognitiveStates.includes('concentre')) symptomsData.concentration = 'high';
-    if (selectedCognitiveStates.includes('disperse') || selectedCognitiveStates.includes('brumeux')) symptomsData.concentration = 'low';
+    // 'disperse' now only affects concentration directly.
+    if (selectedCognitiveStates.includes('disperse')) symptomsData.concentration = 'low';
+
+    if (selectedCognitiveStates.includes('brumeux')) {
+      symptomsData.mentalClarity = 'low';
+      // Optional: if 'brumeux' also implies low concentration, uncomment below
+      // if (symptomsData.concentration === 'medium') symptomsData.concentration = 'low';
+    }
+
     if (selectedCognitiveStates.includes('hyperactif')) symptomsData.agitation = 'high';
-    // 'fatigue' is not directly in symptoms structure, could be a note or new symptom field.
+
+    if (selectedCognitiveStates.includes('fatigue')) {
+      symptomsData.energyLevel = 'low';
+    }
+    // Ensure other cognitive states (if any added in future) are mapped or have defaults.
 
     const newEntry: MoodEntry = {
       id: Date.now().toString(),
@@ -221,31 +226,6 @@ export default function HomeScreen() {
       Alert.alert('Erreur', "Une erreur s'est produite lors de l'enregistrement.");
     }
   };
-
-  const IntensitySelector: React.FC = () => (
-    <View style={styles.intensityContainer}>
-      <Text style={styles.intensityLabel}>Intensité (1-5): {moodIntensity}</Text>
-      <View style={styles.intensityButtons}>
-        {[1, 2, 3, 4, 5].map(val => (
-          <Pressable
-            key={val}
-            style={[
-              styles.intensityButton,
-              moodIntensity === val && styles.intensityButtonSelected
-            ]}
-            onPress={() => setMoodIntensity(val)}
-          >
-            <Text style={[
-              styles.intensityButtonText,
-              moodIntensity === val && styles.intensityButtonTextSelected
-            ]}>
-              {val}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  );
 
   return (
     <LinearGradient
@@ -301,7 +281,7 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </View>
-          <IntensitySelector />
+          <IntensitySelector moodIntensity={moodIntensity} onIntensityChange={setMoodIntensity} />
         </View>
 
         <View style={styles.section}>
@@ -513,45 +493,6 @@ const styles = StyleSheet.create({
     color: Colors.dark.textSecondary,
     textAlign: 'center',
     marginTop: 4,
-  },
-  intensityContainer: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  intensityLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: Colors.dark.textSecondary,
-    marginBottom: 10,
-  },
-  intensityButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
-    maxWidth: 320,
-  },
-  intensityButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.dark.borderPrimary,
-    backgroundColor: Colors.dark.backgroundTertiary,
-    minWidth: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  intensityButtonSelected: {
-    backgroundColor: Colors.dark.accentBlue,
-    borderColor: Colors.dark.accentBlue,
-  },
-  intensityButtonText: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: Colors.dark.textSecondary,
-  },
-  intensityButtonTextSelected: {
-    color: Colors.dark.textPrimary,
   },
   cognitiveGrid: {
     flexDirection: 'row',

@@ -39,6 +39,8 @@ export interface MoodEntry {
     agitation: SymptomLevel;     // e.g. from 'hyperactif'
     impulsivity: SymptomLevel;   // No direct UI mapping yet
     motivation: SymptomLevel;    // No direct UI mapping yet
+    energyLevel?: SymptomLevel;
+    mentalClarity?: SymptomLevel;
     // Consider adding 'energyLevel' if 'fatigue' needs to be stored here
   };
   factors: {
@@ -70,6 +72,8 @@ export const DEFAULT_MOOD_ENTRY: MoodEntry = {
     agitation: 'medium',
     impulsivity: 'medium',
     motivation: 'medium',
+    energyLevel: 'medium',     // New default
+    mentalClarity: 'medium', // New default
   },
   factors: {
     // medication field is removed, medicationsTaken is optional (default will be undefined)
