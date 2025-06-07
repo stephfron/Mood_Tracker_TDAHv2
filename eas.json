@@ -26,14 +26,9 @@
         // "OTHER_SECRET": "your_other_production_secret"
       },
       "android": {
-        "buildType": "app-bundle"
+          "buildType": "apk"
         // "image": "latest" // Or specific image like "ubuntu-22.04-jdk-17-ndk-r25c"
                            // Expo often defaults to a suitable image for the SDK.
-      },
-      "ios": {
-        // "image": "macos-sonoma-xcode-15.3" // Example: Specify a recent Xcode image suitable for SDK 53
-                                           // Expo will choose a default if not specified.
-        // "enterpriseProvisioning": "universal" // If applicable
       }
       // "distribution": "store" // This is often implied for production,
                                 // but can be made explicit if needed.
